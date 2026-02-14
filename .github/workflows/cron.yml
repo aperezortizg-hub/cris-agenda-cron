@@ -1,0 +1,30 @@
+name: Cris Agenda Daily Push
+
+on:
+  schedule:
+    - cron: "0 15 * * *"  # 08:00 Mazatlán
+    - cron: "0 4 * * *"   # 21:00 Mazatlán
+  workflow_dispatch:
+
+jobs:
+  push-today:
+    if: github.event.schedule == '0 15 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call today 8am endpoint
+        run: |
+          curl -sS -X POST "$AGENDA_URL/api/cron/push-today-8am" \
+            -H "X-CRON-SECRET: $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            --data '{}'
+
+  push-tomorrow:
+    if: github.event.schedule == '0 4 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call tomorrow 9pm endpoint
+        run: |
+          curl -sS -X POST "$AGENDA_URL/api/cron/push-tomorrow-9pm" \
+            -H "X-CRON-SECRET: $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            --data '{}'
