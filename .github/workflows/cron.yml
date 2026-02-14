@@ -6,25 +6,33 @@ on:
     - cron: "0 4 * * *"   # 21:00 Mazatlán
   workflow_dispatch:
 
+env:
+  AGENDA_URL: ${{ secrets.AGENDA_URL }}
+  CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
 jobs:
   push-today:
-    if: github.event.schedule == '0 15 * * *' || github.event_name == 'workflow_dispatch'
+    # En manual (Run workflow) se ejecuta este job
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 15 * * *'
     runs-on: ubuntu-latest
     steps:
       - name: Call today 8am endpoint
         run: |
-          curl -sS -X POST "$AGENDA_URL/api/cron/push-today-8am" \
+          echo "AGENDA_URL=$AGENDA_URL"
+          curl -i -X POST "$AGENDA_URL/api/cron/push-today-8am" \
             -H "X-CRON-SECRET: $CRON_SECRET" \
             -H "Content-Type: application/json" \
             --data '{}'
 
   push-tomorrow:
-    if: github.event.schedule == '0 4 * * *' || github.event_name == 'workflow_dispatch'
+    # En manual (Run workflow) se ejecuta este job
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 4 * * *'
     runs-on: ubuntu-latest
     steps:
       - name: Call tomorrow 9pm endpoint
         run: |
-          curl -sS -X POST "$AGENDA_URL/api/cron/push-tomorrow-9pm" \
+          echo "AGENDA_URL=$AGENDA_URL"
+          curl -i -X POST "$AGENDA_URL/api/cron/push-tomorrow-9pm" \
             -H "X-CRON-SECRET: $CRON_SECRET" \
             -H "Content-Type: application/json" \
             --data '{}'
